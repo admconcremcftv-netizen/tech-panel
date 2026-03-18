@@ -95,6 +95,12 @@ export default function EquipmentDetail() {
             <Field label="RAM" value={eq.ram} />
             <Field label="Armazenamento" value={eq.armazenamento} />
             <Field label="Sistema Operacional" value={eq.so} />
+            <Field label="Voltagem" value={eq.voltagem} />
+            <Field label="Polegadas" value={eq.polegadas} />
+            <Field label="Resolução" value={eq.resolucao} />
+            <Field label="IMEI" value={eq.imei} />
+            <Field label="Nº Telefone" value={eq.numeroTelefone} />
+            <Field label="Capacidade Bateria" value={eq.capacidadeBateria} />
             <Field label="Responsável" value={eq.responsavel} />
             <Field label="Localização" value={eq.localizacao} />
             <Field label="Data de Compra" value={eq.dataCompra} />
@@ -105,6 +111,9 @@ export default function EquipmentDetail() {
           {eq.observacoes && <Field label="Observações" value={eq.observacoes} />}
 
           <div className="flex gap-2 mt-6 flex-wrap">
+            <Link to={`/termo/${eq.id}`} className="px-4 py-2 bg-secondary text-secondary-foreground font-display text-[0.6rem] hover:bg-secondary/80 transition-colors flex items-center gap-2">
+              📄 GERAR TERMO
+            </Link>
             <Link to={`/transferencia/${eq.id}`} className="px-4 py-2 bg-primary text-primary-foreground font-display text-[0.6rem] hover:bg-primary/80 transition-colors">
               TRANSFERIR
             </Link>

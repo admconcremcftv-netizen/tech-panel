@@ -27,6 +27,7 @@ export default function EquipmentForm() {
     status: 'Disponível' as Equipment['status'],
     responsavel: '', localizacao: '', dataCompra: '', garantia: '', valor: '',
     observacoes: '', specs: '', foto: null as string | null,
+    polegadas: '', resolucao: '', voltagem: '', imei: '', numeroTelefone: '', capacidadeBateria: '',
   });
 
   useEffect(() => {
@@ -77,23 +78,66 @@ export default function EquipmentForm() {
           <FormField label="Número de série">
             <input className={inputClass} value={form.serie} onChange={e => set('serie', e.target.value)} />
           </FormField>
+          
+          {/* Campos Dinâmicos por Tipo */}
+          {form.tipo === 'Monitor' && (
+            <>
+              <FormField label="Polegadas">
+                <input className={inputClass} value={form.polegadas} onChange={e => set('polegadas', e.target.value)} placeholder='Ex: 24"' />
+              </FormField>
+              <FormField label="Resolução">
+                <input className={inputClass} value={form.resolucao} onChange={e => set('resolucao', e.target.value)} placeholder="Ex: 1920x1080" />
+              </FormField>
+            </>
+          )}
+
+          {form.tipo === 'Celular' && (
+            <>
+              <FormField label="IMEI">
+                <input className={inputClass} value={form.imei} onChange={e => set('imei', e.target.value)} />
+              </FormField>
+              <FormField label="Número do Telefone">
+                <input className={inputClass} value={form.numeroTelefone} onChange={e => set('numeroTelefone', e.target.value)} />
+              </FormField>
+              <FormField label="Capacidade Bateria (mAh)">
+                <input className={inputClass} value={form.capacidadeBateria} onChange={e => set('capacidadeBateria', e.target.value)} />
+              </FormField>
+            </>
+          )}
+
+          {(form.tipo === 'Impressora' || form.tipo === 'Servidor') && (
+            <FormField label="Voltagem">
+              <select className={inputClass} value={form.voltagem} onChange={e => set('voltagem', e.target.value)}>
+                <option value="">Selecione</option>
+                <option value="110v">110v</option>
+                <option value="220v">220v</option>
+                <option value="Bivolt">Bivolt</option>
+              </select>
+            </FormField>
+          )}
+
+          {(form.tipo === 'Notebook' || form.tipo === 'Desktop' || form.tipo === 'Servidor') && (
+            <>
+              <FormField label="Processador">
+                <input className={inputClass} value={form.processador} onChange={e => set('processador', e.target.value)} />
+              </FormField>
+              <FormField label="RAM">
+                <input className={inputClass} value={form.ram} onChange={e => set('ram', e.target.value)} />
+              </FormField>
+              <FormField label="Armazenamento">
+                <input className={inputClass} value={form.armazenamento} onChange={e => set('armazenamento', e.target.value)} />
+              </FormField>
+              <FormField label="Sistema operacional">
+                <input className={inputClass} value={form.so} onChange={e => set('so', e.target.value)} />
+              </FormField>
+            </>
+          )}
+
           <FormField label="Marca">
             <input className={inputClass} value={form.marca} onChange={e => set('marca', e.target.value)} />
           </FormField>
           <FormField label="Modelo">
             <input className={inputClass} value={form.modelo} onChange={e => set('modelo', e.target.value)} />
-          </FormField>
-          <FormField label="Processador">
-            <input className={inputClass} value={form.processador} onChange={e => set('processador', e.target.value)} />
-          </FormField>
-          <FormField label="RAM">
-            <input className={inputClass} value={form.ram} onChange={e => set('ram', e.target.value)} />
-          </FormField>
-          <FormField label="Armazenamento">
-            <input className={inputClass} value={form.armazenamento} onChange={e => set('armazenamento', e.target.value)} />
-          </FormField>
-          <FormField label="Sistema operacional">
-            <input className={inputClass} value={form.so} onChange={e => set('so', e.target.value)} />
           </FormField>
         </div>
 

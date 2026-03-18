@@ -19,6 +19,13 @@ export interface Equipment {
   valor: string;
   observacoes: string;
   foto: string | null;
+  // Campos específicos
+  polegadas?: string;
+  resolucao?: string;
+  voltagem?: string;
+  imei?: string;
+  numeroTelefone?: string;
+  capacidadeBateria?: string;
 }
 
 export interface EquipmentEvent {

@@ -4,12 +4,16 @@ import { PageHeader } from '@/components/PageHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Link } from 'react-router-dom';
 import { EquipmentStatus } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
-function StatCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
+function StatCard({ label, value, accent, color }: { label: string; value: number; accent?: boolean; color?: string }) {
   return (
-    <div className="bg-surface border border-border p-4 rounded-sm shadow-lg">
-      <div className="text-[0.7rem] text-muted-foreground uppercase">{label}</div>
-      <div className={`text-3xl font-display mt-1 ${accent ? 'text-accent' : 'text-primary'}`}>{value}</div>
+    <div className="bg-card border border-border p-5 rounded-xl shadow-card transition-all hover:shadow-card-hover group">
+      <div className="text-[0.65rem] text-muted-foreground uppercase font-bold tracking-wider mb-1 group-hover:text-primary transition-colors">{label}</div>
+      <div className={cn(
+        "text-3xl font-bold font-sans",
+        color ? color : (accent ? 'text-status-success' : 'text-secondary')
+      )}>{value}</div>
     </div>
   );
 }
@@ -91,7 +95,7 @@ function BarChart({ data }: { data: Record<string, number> }) {
 
 export default function Dashboard() {
   const equips = Storage.getEquipments();
-  const events = Storage.getEvents().slice(-5).reverse();
+  const events = Storage.getEvents().slice(-15).reverse(); // Aumentado para 15 logs para maior visibilidade
 
   const inMaint = equips.filter(e => e.status === 'Em Manutenção');
   const alerts: { type: 'error' | 'warn'; message: string }[] = [];
@@ -123,17 +127,31 @@ export default function Dashboard() {
     else statusCounts[eq.status]++;
   });
 
+  const totalLogs = Storage.getEvents().length;
+  const logsHoje = Storage.getEvents().filter(ev => {
+    const logDate = new Date(ev.date);
+    const today = new Date();
+    return logDate.getDate() === today.getDate() &&
+           logDate.getMonth() === today.getMonth() &&
+           logDate.getFullYear() === today.getFullYear();
+  }).length;
+
   return (
     <>
       <PageHeader title="Painel de Controle" breadcrumb={['Core', 'Dashboard']}>
-        <span className="font-mono text-accent text-xs">SYSTEM_STATUS: NOMINAL</span>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-status-success animate-pulse"></span>
+          <span className="font-mono text-status-success text-[0.65rem] font-bold uppercase tracking-widest">SISTEMA: ONLINE</span>
+        </div>
       </PageHeader>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
         <StatCard label="Total Ativos" value={equips.length} />
         <StatCard label="Em Uso" value={equips.filter(e => e.status === 'Em Uso').length} />
         <StatCard label="Disponíveis" value={equips.filter(e => e.status === 'Disponível').length} accent />
-        <StatCard label="Manutenção" value={inMaint.length} />
+        <StatCard label="Manutenção" value={inMaint.length} color="text-status-danger" />
+        <StatCard label="Total Logs" value={totalLogs} color="text-secondary" />
+        <StatCard label="Logs Hoje" value={logsHoje} color="text-status-info" />
       </div>
 
       <div className="grid md:grid-cols-2 gap-4 mb-6">
@@ -147,32 +165,74 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-surface border border-border p-4 rounded-sm">
-          <h3 className="text-[0.75rem] font-display mb-4">Alertas de Sistema</h3>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-card border border-border p-6 rounded-xl shadow-card">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <span className="w-2 h-4 bg-primary rounded-full"></span>
+            Alertas de Sistema
+          </h3>
           {alerts.length === 0 ? (
-            <p className="font-mono text-muted-foreground/50 text-sm">Sem alertas pendentes.</p>
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <p className="text-sm text-muted-foreground italic">Sem alertas pendentes no momento.</p>
+            </div>
           ) : (
-            alerts.map((a, i) => (
-              <div key={i} className={`p-3 rounded-sm mb-2 text-sm border-l-4 ${
-                a.type === 'error' ? 'bg-destructive/10 text-red-300 border-l-status-error' : 'bg-status-warn/10 text-yellow-200 border-l-status-warn'
-              }`}>
-                {a.message}
-              </div>
-            ))
+            <div className="space-y-3">
+              {alerts.map((a, i) => (
+                <div key={i} className={`p-4 rounded-lg border-l-4 transition-all hover:translate-x-1 ${
+                  a.type === 'error' 
+                    ? 'bg-status-danger/10 border-l-status-danger text-status-danger font-medium' 
+                    : 'bg-status-warning/10 border-l-status-warning text-status-warning font-medium'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <span className="mt-0.5">•</span>
+                    <span className="text-sm leading-relaxed">{a.message}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
-        <div className="bg-surface border border-border p-4 rounded-sm">
-          <h3 className="text-[0.75rem] font-display mb-4">Últimas Movimentações</h3>
-          {events.map(ev => (
-            <div key={ev.id} className="border-b border-border py-2">
-              <div className="flex justify-between">
-                <span className="font-mono text-xs text-primary">{ev.type}</span>
-                <span className="font-mono text-[0.65rem] text-muted-foreground/50">{ev.date}</span>
-              </div>
-              <div className="text-sm">{ev.desc}</div>
+
+        <div className="bg-card border border-border p-6 rounded-xl shadow-card">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-4 bg-secondary rounded-full"></span>
+              Últimas Movimentações (Log)
             </div>
-          ))}
+            <span className="text-[0.65rem] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full font-bold">
+              TOP 15
+            </span>
+          </h3>
+          <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+            {events.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <p className="text-sm text-muted-foreground italic">Nenhuma movimentação registrada.</p>
+              </div>
+            ) : (
+              events.map(ev => (
+                <div key={ev.id} className="group relative pl-4 border-l-2 border-muted hover:border-primary transition-all pb-4 last:pb-0">
+                  <div className="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-muted group-hover:bg-primary transition-all shadow-[0_0_0_2px_white]"></div>
+                  <div className="flex justify-between items-start mb-1">
+                    <span className={cn(
+                      "text-[0.7rem] font-bold uppercase px-2 py-0.5 rounded",
+                      ev.type === 'Manutenção' ? 'bg-status-danger/10 text-status-danger' :
+                      ev.type === 'Transferência' ? 'bg-status-info/10 text-status-info' :
+                      ev.type === 'Cadastro' ? 'bg-status-success/10 text-status-success' :
+                      'bg-primary/5 text-primary'
+                    )}>
+                      {ev.type}
+                    </span>
+                    <span className="text-[0.65rem] text-muted-foreground font-medium bg-muted/20 px-1.5 py-0.5 rounded">
+                      {new Date(ev.date).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground/90 leading-snug font-sans">
+                    {ev.desc}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </>

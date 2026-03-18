@@ -24,13 +24,66 @@ export default function Reports() {
   }, {});
 
   const exportCSV = () => {
-    const headers = ['ID', 'Nome', 'Tipo', 'Patrimônio', 'Série', 'Status', 'Responsável', 'Localização', 'Data Compra', 'Garantia', 'Valor'];
-    const rows = equips.map(e => [e.id, e.nome, e.tipo, e.patrimonio, e.serie, e.status, e.responsavel, e.localizacao, e.dataCompra, e.garantia, e.valor].join(','));
-    const csv = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    // Buscar dados mais recentes diretamente do Storage
+    const currentEquips = Storage.getEquipments();
+
+    // Cabeçalhos EXATOS solicitados pelo usuário (sem parênteses)
+    const headers = [
+      'Tipo de equipamento',
+      'Nome do equipamento',
+      'Patrimônio',
+      'Número de Série',
+      'Processador',
+      'RAM',
+      'Armazenamento',
+      'Sistema Operacional',
+      'Marca',
+      'Modelo',
+      'Voltagem',
+      'Usuário Responsável',
+      'Localização',
+      'Valor de Compra',
+      'Status operacional',
+      'Observações'
+    ];
+
+    const rows = currentEquips.map(e => {
+      // Mapeamento RIGOROSO seguindo a ordem dos cabeçalhos acima
+      return [
+        `"${e.tipo || ''}"`,
+        `"${e.nome || ''}"`,
+        `"${e.patrimonio || ''}"`,
+        `"${e.serie || ''}"`,
+        `"${e.processador || ''}"`,
+        `"${e.ram || ''}"`,
+        `"${e.armazenamento || ''}"`,
+        `"${e.so || ''}"`,
+        `"${e.marca || ''}"`,
+        `"${e.modelo || ''}"`,
+        `"${e.voltagem || ''}"`,
+        `"${e.responsavel || ''}"`,
+        `"${e.localizacao || ''}"`,
+        `"${e.valor ? 'R$ ' + e.valor : ''}"`,
+        `"${e.status || ''}"`,
+        `"${(e.observacoes || '').replace(/\n/g, ' ')}"`
+      ].join(';');
+    });
+
+    // Adicionando BOM (Byte Order Mark) para UTF-8 para o Excel reconhecer acentos corretamente
+    // E usando ponto e vírgula como separador para Excel em PT-BR
+    const csvContent = "\uFEFF" + [headers.join(';'), ...rows].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', `inventario_coretech_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `INVENTARIO_TI_CONCREM_${new Date().toISOString().split('T')[0]}.csv`);
+    link.click();
+  };
+
+  const downloadTermo = () => {
+    const link = document.createElement('a');
+    link.href = '/TERMO_DE_RESPONSABILIDADE_NOTEBOOK.docx';
+    link.setAttribute('download', 'TERMO_DE_RESPONSABILIDADE_NOTEBOOK.docx');
     link.click();
   };
 
@@ -51,10 +104,18 @@ export default function Reports() {
 
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-surface border border-border p-5 rounded-sm">
-          <h3 className="font-display text-xs mb-3">Exportar Inventário</h3>
-          <p className="text-muted-foreground text-sm mb-4">Gera um arquivo CSV com todos os ativos cadastrados.</p>
-          <button onClick={exportCSV} className="px-4 py-2.5 bg-primary text-primary-foreground font-display text-[0.65rem] hover:bg-primary/80 transition-colors">
-            DOWNLOAD CSV
+          <h3 className="font-display text-xs mb-3">Termo de Responsabilidade</h3>
+          <p className="text-muted-foreground text-sm mb-4">Clique abaixo para baixar o termo de responsabilidade de equipamentos.</p>
+          <button onClick={downloadTermo} className="px-4 py-2.5 bg-primary text-primary-foreground font-display text-[0.65rem] hover:bg-primary/80 transition-colors">
+            DOWNLOAD TERMO (.DOCX)
+          </button>
+        </div>
+
+        <div className="bg-surface border border-border p-5 rounded-sm">
+          <h3 className="font-display text-xs mb-3">Inventário Geral (CSV)</h3>
+          <p className="text-muted-foreground text-sm mb-4">Gera um arquivo CSV com todos os ativos cadastrados para backup.</p>
+          <button onClick={exportCSV} className="px-4 py-2.5 bg-secondary text-secondary-foreground font-display text-[0.65rem] hover:bg-secondary/80 transition-colors">
+            DOWNLOAD INVENTÁRIO
           </button>
         </div>
 
