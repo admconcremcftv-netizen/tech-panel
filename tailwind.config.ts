@@ -1,7 +1,8 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
-  darkMode: ["class"],
+  darkMode: ["class", '[data-theme="dark"]'],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
@@ -13,43 +14,56 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "hsl(142, 93%, 8%)",
-          foreground: "hsl(0, 0%, 100%)",
-          hover: "hsl(142, 93%, 15%)",
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
+          hover: "var(--primary-hover)",
         },
         secondary: {
-          DEFAULT: "hsl(210, 51%, 24%)",
-          foreground: "hsl(0, 0%, 100%)",
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
         },
-        background: "hsl(214, 32%, 97%)",
-        foreground: "hsl(210, 24%, 24%)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
         muted: {
-          DEFAULT: "hsl(214, 32%, 91%)",
-          foreground: "hsl(213, 12%, 52%)",
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
         },
-        border: "hsl(214, 32%, 91%)",
-        input: "hsl(214, 32%, 91%)",
-        ring: "hsl(142, 93%, 8%)",
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
         card: {
-          DEFAULT: "hsl(0, 0%, 100%)",
-          foreground: "hsl(210, 24%, 24%)",
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
+        },
+        popover: {
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
         },
         status: {
-          success: "hsl(142, 93%, 8%)",
-          warning: "hsl(27, 90%, 65%)",
-          danger: "hsl(0, 93%, 74%)",
-          info: "hsl(204, 71%, 57%)",
+          success: "var(--status-success)",
+          warning: "var(--status-warning)",
+          danger: "var(--status-danger)",
+          info: "var(--status-info)",
         },
         sidebar: {
-          background: "hsl(142, 93%, 8%)",
-          foreground: "hsl(0, 0%, 100%)",
-          primary: "hsl(142, 93%, 15%)",
-          "primary-foreground": "hsl(0, 0%, 100%)",
-          accent: "hsl(142, 93%, 15%)",
-          "accent-foreground": "hsl(0, 0%, 100%)",
-          border: "hsl(142, 93%, 15%)",
-          ring: "hsl(142, 93%, 8%)",
+          background: "var(--sidebar-background)",
+          foreground: "var(--sidebar-foreground)",
+          primary: "var(--sidebar-primary)",
+          "primary-foreground": "var(--sidebar-primary-foreground)",
+          accent: "var(--sidebar-accent)",
+          "accent-foreground": "var(--sidebar-accent-foreground)",
+          border: "var(--sidebar-border)",
+          ring: "var(--sidebar-ring)",
         },
+        // iOS Specific colors
+        ios: {
+          blue: "var(--system-blue)",
+          green: "var(--system-green)",
+          red: "var(--system-red)",
+          orange: "var(--system-orange)",
+          yellow: "var(--system-yellow)",
+          gray: "var(--gray)",
+        }
       },
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],
@@ -74,5 +88,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

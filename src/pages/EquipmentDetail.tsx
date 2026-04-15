@@ -1,11 +1,12 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { Storage } from '@/lib/storage';
+import { SupabaseService } from '@/lib/supabaseService';
 import { PageHeader } from '@/components/PageHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { showToast } from '@/components/ToastSystem';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Equipment, EquipmentEvent } from '@/lib/types';
 
 function Field({ label, value }: { label: string; value: string }) {
   if (!value) return null;
@@ -21,17 +22,84 @@ export default function EquipmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [eq, setEq] = useState<Equipment | null>(null);
+  const [events, setEvents] = useState<EquipmentEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
-  const eq = Storage.getEquipment(id!);
+  useEffect(() => {
+    async function loadData() {
+      if (!id) return;
+      const data = await SupabaseService.getEquipment(id);
+      if (data) {
+        setEq(data);
+        const evs = await SupabaseService.getEquipmentEvents(id);
+        setEvents(evs);
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, [id]);
+
+  useEffect(() => {
+    setSelectedPhotoIndex(0);
+  }, [eq?.id]);
+
+  if (loading) return <div className="p-8"><h1 className="font-display text-xl">Carregando dados...</h1></div>;
   if (!eq) return <div className="p-8"><h1 className="font-display text-xl">Ativo não encontrado</h1></div>;
 
-  const events = Storage.getEquipmentEvents(eq.id).reverse();
-  const qrUrl = `${window.location.origin}/#/equipamento/${eq.id}`;
+  const formatPhotoSrc = (value: string) => {
+    const raw = value.trim();
+    if (!raw) return null;
 
-  const handleDelete = () => {
-    Storage.deleteEquipment(eq.id);
-    showToast('Equipamento removido');
-    navigate('/equipamentos');
+    const normalized = raw.replace(/\s+/g, '');
+    if (normalized.startsWith('data:')) return normalized;
+    if (normalized.startsWith('http://') || normalized.startsWith('https://')) return normalized;
+
+    const looksLikeBase64 = /^[A-Za-z0-9+/=]+$/.test(normalized) && normalized.length > 200;
+    if (looksLikeBase64) return `data:image/jpeg;base64,${normalized}`;
+
+    return normalized;
+  };
+
+  const getPhotoList = (foto: Equipment['foto']) => {
+    if (!foto) return [];
+    const raw = foto.trim();
+    if (!raw) return [];
+
+    let list: string[] = [];
+    if (raw.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(raw) as unknown;
+        if (Array.isArray(parsed)) {
+          list = parsed.filter(v => typeof v === 'string') as string[];
+        }
+      } catch {
+        list = [];
+      }
+    } else {
+      list = [raw];
+    }
+
+    return list
+      .map(v => formatPhotoSrc(v))
+      .filter((v): v is string => typeof v === 'string' && v.length > 0)
+      .slice(0, 4);
+  };
+
+  const photos = getPhotoList(eq.foto);
+  const selectedPhotoSrc = photos[selectedPhotoIndex] || photos[0] || null;
+
+  const qrData = `${window.location.origin}/rastreio/${eq.id}`;
+
+  const handleDelete = async () => {
+    const success = await SupabaseService.deleteEquipment(eq.id);
+    if (success) {
+      showToast('Equipamento removido');
+      navigate('/equipamentos');
+    } else {
+      showToast('Erro ao remover equipamento');
+    }
   };
 
   const handlePrint = () => {
@@ -71,7 +139,7 @@ export default function EquipmentDetail() {
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-surface border border-border p-5 rounded-sm">
           <div className="flex justify-between items-start mb-1">
-            <h2 className="font-mono text-primary text-lg">{eq.nome}</h2>
+            <h2 className="font-mono text-lg text-[#01270f] dark:text-white">{eq.nome}</h2>
             <StatusBadge status={eq.status} />
           </div>
           <p className="font-mono text-muted-foreground/50 text-xs mb-5">ID: {eq.id}</p>
@@ -110,8 +178,72 @@ export default function EquipmentDetail() {
 
           {eq.observacoes && <Field label="Observações" value={eq.observacoes} />}
 
+          <div className="mt-8 pt-6 border-t border-border-bright">
+            <h3 className="font-display text-[0.65rem] uppercase mb-4 tracking-widest text-[#01270f] dark:text-white">Especificações Técnicas (Ficha)</h3>
+            <div className="bg-background/50 border border-border p-4 rounded-md space-y-3">
+              <div className="grid grid-cols-2 gap-y-3 gap-x-6">
+                <div>
+                  <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Processador</div>
+                  <div className="text-sm font-mono">{eq.processador || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Memória RAM</div>
+                  <div className="text-sm font-mono">{eq.ram || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Armazenamento</div>
+                  <div className="text-sm font-mono">{eq.armazenamento || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Sistema Operacional</div>
+                  <div className="text-sm font-mono">{eq.so || 'N/A'}</div>
+                </div>
+                
+                {eq.tipo === 'Monitor' && (
+                  <>
+                    <div>
+                      <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Polegadas</div>
+                      <div className="text-sm font-mono">{eq.polegadas || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Resolução</div>
+                      <div className="text-sm font-mono">{eq.resolucao || 'N/A'}</div>
+                    </div>
+                  </>
+                )}
+
+                {eq.tipo === 'Celular' && (
+                  <>
+                    <div>
+                      <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">IMEI</div>
+                      <div className="text-sm font-mono">{eq.imei || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Bateria</div>
+                      <div className="text-sm font-mono">{eq.capacidadeBateria || 'N/A'}</div>
+                    </div>
+                  </>
+                )}
+
+                {eq.tipo === 'Impressora' && (
+                  <div>
+                    <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Voltagem</div>
+                    <div className="text-sm font-mono">{eq.voltagem || 'N/A'}</div>
+                  </div>
+                )}
+              </div>
+              
+              {eq.specs && (
+                <div className="pt-2 border-t border-border-bright/30 mt-2">
+                  <div className="text-[0.5rem] text-muted-foreground uppercase font-bold mb-1">Detalhes Adicionais</div>
+                  <div className="text-xs font-mono text-foreground/80 leading-relaxed">{eq.specs}</div>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="flex gap-2 mt-6 flex-wrap">
-            <Link to={`/termo/${eq.id}`} className="px-4 py-2 bg-secondary text-secondary-foreground font-display text-[0.6rem] hover:bg-secondary/80 transition-colors flex items-center gap-2">
+            <Link to={`/termo/${eq.id}`} className="px-4 py-2 bg-primary text-primary-foreground font-display text-[0.6rem] hover:bg-primary/80 transition-colors flex items-center gap-2">
               📄 GERAR TERMO
             </Link>
             <Link to={`/transferencia/${eq.id}`} className="px-4 py-2 bg-primary text-primary-foreground font-display text-[0.6rem] hover:bg-primary/80 transition-colors">
@@ -124,13 +256,52 @@ export default function EquipmentDetail() {
         </div>
 
         <div className="bg-surface border border-border p-5 rounded-sm">
-          <h3 className="font-display text-xs mb-4">QR Code de Rastreio</h3>
-          <div className="bg-foreground p-3 inline-block rounded">
-            <QRCodeSVG value={qrUrl} size={128} />
+          {selectedPhotoSrc && (
+            <div className="mb-6">
+              <h3 className="font-display text-xs mb-3">Foto do Equipamento</h3>
+              <div className="bg-background border border-border rounded-md overflow-hidden">
+                <img
+                  src={selectedPhotoSrc}
+                  alt={`Foto do equipamento ${eq.nome}`}
+                  className="w-full max-h-[360px] object-contain bg-background"
+                  loading="lazy"
+                />
+              </div>
+              {photos.length > 1 && (
+                <div className="mt-3 flex gap-2 flex-wrap">
+                  {photos.map((src, idx) => (
+                    <button
+                      key={`${src}-${idx}`}
+                      type="button"
+                      onClick={() => setSelectedPhotoIndex(idx)}
+                      className={idx === selectedPhotoIndex ? "border-2 border-primary rounded-md overflow-hidden" : "border border-border rounded-md overflow-hidden"}
+                    >
+                      <img src={src} alt={`Miniatura ${idx + 1}`} className="h-14 w-14 object-cover bg-background" loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <h3 className="font-display text-xs mb-4">Identificação Rápida (QR)</h3>
+          <div className="bg-white p-3 inline-block rounded border border-border">
+            <QRCodeSVG 
+              value={qrData} 
+              size={128} 
+              level="H"
+            />
           </div>
-          <p className="font-mono text-[0.65rem] text-muted-foreground/50 mt-3">
-            Aponte a câmera para acessar esta ficha técnica.
+          <p className="font-mono text-[0.65rem] text-muted-foreground/50 mt-3 mb-4">
+            Escaneie para visualizar os dados técnicos no dispositivo.
           </p>
+          
+          <button 
+            onClick={() => navigate(`/rastreio/${eq.id}`)}
+            className="w-full py-2 bg-primary/10 border border-primary/20 font-display text-[0.6rem] uppercase tracking-widest hover:bg-primary hover:text-white transition-all text-[#01270f] dark:text-white"
+          >
+            🚀 Simular Escaneamento
+          </button>
 
           <h3 className="font-display text-xs mt-8 mb-4">Histórico de Eventos</h3>
           <div className="relative pl-7">
@@ -139,7 +310,7 @@ export default function EquipmentDetail() {
               <div key={ev.id} className="relative mb-5">
                 <div className="absolute left-[-22px] top-1.5 w-2 h-2 rounded-full bg-primary" />
                 <div className="font-mono text-[0.65rem] text-muted-foreground/50">{ev.date}</div>
-                <div className="font-mono text-xs text-primary">{ev.type}</div>
+                <div className="font-mono text-xs text-[#01270f] dark:text-white">{ev.type}</div>
                 <div className="text-sm">{ev.desc}</div>
               </div>
             ))}

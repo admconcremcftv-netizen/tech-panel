@@ -1,27 +1,40 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, FormEvent } from 'react';
-import { Storage } from '@/lib/storage';
+import { useState, useEffect, FormEvent } from 'react';
+import { SupabaseService } from '@/lib/supabaseService';
 import { PageHeader } from '@/components/PageHeader';
 import { showToast } from '@/components/ToastSystem';
+import { Equipment } from '@/lib/types';
 
 const inputClass = "w-full bg-background border border-border px-3 py-2.5 font-mono text-sm text-foreground outline-none focus:border-primary";
 
 export default function TransferForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const eq = Storage.getEquipment(id!);
+  const [eq, setEq] = useState<Equipment | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({ responsavel: '', localizacao: '', motivo: '' });
 
+  useEffect(() => {
+    async function loadData() {
+      if (id) {
+        const data = await SupabaseService.getEquipment(id);
+        setEq(data);
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, [id]);
+
+  if (loading) return <div className="p-8"><h1 className="font-display">Carregando...</h1></div>;
   if (!eq) return <div className="p-8"><h1 className="font-display">Ativo não encontrado</h1></div>;
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    Storage.addEvent(eq.id, 'Transferência', `Transferido para ${form.responsavel} em ${form.localizacao}. Motivo: ${form.motivo}`);
+    await SupabaseService.addEvent(eq.id, 'Transferência', `Transferido para ${form.responsavel} em ${form.localizacao}. Motivo: ${form.motivo}`);
 
-    const all = Storage.getEquipments();
-    const updated = all.map(item => item.id === eq.id ? { ...item, responsavel: form.responsavel, localizacao: form.localizacao, status: 'Em Uso' as const } : item);
-    Storage.saveEquipments(updated);
+    const updatedEq: Equipment = { ...eq, responsavel: form.responsavel, localizacao: form.localizacao, status: 'Em Uso' };
+    await SupabaseService.saveEquipment(updatedEq, eq.id);
 
     showToast('Transferência concluída');
     navigate(`/equipamento/${eq.id}`);

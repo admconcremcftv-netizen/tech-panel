@@ -4,37 +4,108 @@
 
 @layer base {
   :root {
-    --primary: 142 93% 8%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 142 93% 15%;
-    --secondary: 210 51% 24%;
-    --secondary-foreground: 0 0% 100%;
-    --background: 214 32% 97%;
-    --foreground: 210 24% 24%;
-    --card: 0 0% 100%;
-    --card-foreground: 210 24% 24%;
-    --muted: 214 32% 91%;
-    --muted-foreground: 213 12% 52%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 142 93% 8%;
-    --status-success: 142 93% 8%;
-    --status-warning: 27 90% 65%;
-    --status-danger: 0 93% 74%;
-    --status-info: 204 71% 57%;
-    --sidebar-background: 142 93% 8%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 142 93% 15%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 142 93% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 142 93% 15%;
-    --sidebar-ring: 142 93% 8%;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f2f2f7;
+    --bg-tertiary: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: #3c3c43;
+    --text-tertiary: rgba(60, 60, 67, 0.6);
+    --separator-opaque: #c6c6c8;
+    --separator-non-opaque: rgba(60, 60, 67, 0.29);
+    --fill-primary: rgba(120, 120, 128, 0.2);
+    --fill-secondary: rgba(120, 120, 128, 0.16);
+    --fill-tertiary: rgba(118, 118, 128, 0.12);
+    --system-blue: #007aff;
+    --system-green: #34c759;
+    --system-red: #ff3b30;
+    --system-orange: #ff9500;
+    --system-yellow: #ffcc00;
+    --system-purple: #af52de;
+    --system-pink: #ff2d55;
+    --system-teal: #5ac8fa;
+    --gray: #8e8e93;
+    --gray-2: #aeaeb2;
+    --gray-3: #c7c7cc;
+    --gray-4: #d1d1d6;
+    --gray-5: #e5e5ea;
+    --gray-6: #f2f2f7;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+    /* Mapeamento para as variáveis existentes no Tailwind */
+    --background: var(--bg-secondary);
+    --foreground: var(--text-primary);
+    --card: var(--bg-primary);
+    --card-foreground: var(--text-primary);
+    --popover: var(--bg-primary);
+    --popover-foreground: var(--text-primary);
+    --muted: var(--gray-6);
+    --muted-foreground: var(--text-tertiary);
+    --border: var(--separator-opaque);
+    --input: var(--bg-primary);
+    --ring: var(--system-blue);
+    --primary: hsl(142, 93%, 8%);
+    --primary-foreground: #ffffff;
+    --primary-hover: hsl(142, 93%, 15%);
+    --secondary: var(--system-blue);
+    --secondary-foreground: #ffffff;
+    --status-success: var(--system-green);
+    --status-warning: var(--system-orange);
+    --status-danger: var(--system-red);
+    --status-info: var(--system-teal);
+    
+    /* Cores Originais da Sidebar (Verde Escuro) */
+    --sidebar-background: hsl(142, 93%, 8%);
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: hsl(142, 93%, 15%);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: hsl(142, 93%, 15%);
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: hsl(142, 93%, 15%);
+    --sidebar-ring: hsl(142, 93%, 8%);
+  }
+
+  [data-theme="dark"] {
+    --bg-primary: #000000;
+    --bg-secondary: #1c1c1e;
+    --bg-tertiary: #2c2c2e;
+    --text-primary: #ffffff;
+    --text-secondary: #ebebf5;
+    --text-tertiary: rgba(235, 235, 245, 0.6);
+    --separator-opaque: #38383a;
+    --separator-non-opaque: rgba(84, 84, 88, 0.6);
+    --fill-primary: rgba(120, 120, 128, 0.36);
+    --fill-secondary: rgba(120, 120, 128, 0.32);
+    --fill-tertiary: rgba(118, 118, 128, 0.24);
+    --system-blue: #0a84ff;
+    --system-green: #30d158;
+    --system-red: #ff453a;
+    --system-orange: #ff9f0a;
+    --system-yellow: #ffd60a;
+    --system-purple: #bf5af2;
+    --system-pink: #ff375f;
+    --system-teal: #64d2ff;
+    --gray: #8e8e93;
+    --gray-2: #636366;
+    --gray-3: #48484a;
+    --gray-4: #3a3a3c;
+    --gray-5: #2c2c2e;
+    --gray-6: #1c1c1e;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+
+    /* Mapeamento para Dark Mode */
+    --primary: hsl(142, 93%, 15%);
+    --primary-foreground: #ffffff;
+    --primary-hover: hsl(142, 93%, 20%);
   }
 
   body {
     @apply bg-background text-foreground font-sans;
     font-family: 'Manrope', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -12,11 +12,11 @@ export function getStatusColor(status: EquipmentStatus) {
 
 export function getStatusBorderClass(status: EquipmentStatus) {
   switch (status) {
-    case 'Disponível': return 'border-status-ok text-status-ok bg-status-ok/10';
-    case 'Em Uso': return 'border-status-info text-status-info bg-status-info/10';
-    case 'Em Manutenção': return 'border-status-warn text-status-warn bg-status-warn/10';
-    case 'Descartado': return 'border-status-off text-status-off bg-status-off/10';
-    default: return 'border-status-off text-status-off bg-status-off/10';
+    case 'Disponível': return 'border-status-success text-status-success bg-status-success/10';
+    case 'Em Uso': return 'border-secondary text-secondary bg-secondary/10';
+    case 'Em Manutenção': return 'border-status-danger text-status-danger bg-status-danger/10';
+    case 'Descartado': return 'border-ios-gray text-ios-gray bg-ios-gray/10';
+    default: return 'border-ios-gray text-ios-gray bg-ios-gray/10';
   }
 }
 

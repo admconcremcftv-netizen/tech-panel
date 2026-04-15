@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { Storage } from '@/lib/storage';
+import { useState, useEffect } from 'react';
+import { SupabaseService } from '@/lib/supabaseService';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { PageHeader } from '@/components/PageHeader';
 import { cn } from '@/lib/utils';
+import { EquipmentEvent } from '@/lib/types';
 import { 
   History, 
   Search, 
@@ -12,9 +14,10 @@ import {
   ArrowRightLeft, 
   PlusCircle 
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const eventIcons: Record<string, any> = {
+const eventIcons: Record<string, LucideIcon> = {
   'Cadastro': PlusCircle,
   'Transferência': ArrowRightLeft,
   'Manutenção': AlertCircle,
@@ -31,21 +34,66 @@ const eventColors: Record<string, string> = {
 export default function Logs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('Todos');
-  
-  const allEvents = Storage.getEvents().reverse();
+  const [allEvents, setAllEvents] = useState<EquipmentEvent[]>([]);
+  const [equips, setEquips] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      const [evData, eqData] = await Promise.all([
+        SupabaseService.getEvents(),
+        SupabaseService.getEquipments()
+      ]);
+      setAllEvents(evData);
+      setEquips(eqData);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
   const eventTypes = ['Todos', ...Array.from(new Set(allEvents.map(e => e.type)))];
 
   const filteredEvents = allEvents.filter(ev => {
+    const eq = equips.find(e => e.id === ev.equipId);
     const matchesSearch = ev.desc.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         ev.type.toLowerCase().includes(searchTerm.toLowerCase());
+                         ev.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (eq && eq.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         (eq && eq.patrimonio.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesFilter = filterType === 'Todos' || ev.type === filterType;
     return matchesSearch && matchesFilter;
   });
 
+  const exportLogsCSV = () => {
+    const headers = ['Data', 'Equipamento', 'Patrimônio', 'Tipo', 'Descrição'];
+    const rows = filteredEvents.map(ev => {
+      const eq = equips.find(e => e.id === ev.equipId);
+      return [
+        `"${new Date(ev.date).toLocaleDateString('pt-BR')}"`,
+        `"${eq?.nome || 'N/A'}"`,
+        `"${eq?.patrimonio || 'N/A'}"`,
+        `"${ev.type}"`,
+        `"${ev.desc.replace(/\n/g, ' ')}"`
+      ].join(';');
+    });
+
+    const csvContent = "\uFEFF" + [headers.join(';'), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `LOGS_SISTEMA_CONCREM_${new Date().toISOString().split('T')[0]}.csv`);
+    link.click();
+  };
+
+  if (loading) return <div className="p-8"><h1 className="font-display text-xl">Carregando logs...</h1></div>;
+
   return (
     <div className="space-y-6">
       <PageHeader title="Histórico de Logs" breadcrumb={['Sistema', 'Logs']}>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button 
+          onClick={exportLogsCSV}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 shadow-sm border-none" 
+          size="sm"
+        >
           <FileDown className="h-4 w-4" />
           Exportar Logs
         </Button>
@@ -57,7 +105,7 @@ export default function Logs() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Buscar por descrição ou tipo..."
+              placeholder="Buscar por equipamento, patrimônio ou descrição..."
               className="w-full bg-background border border-border pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none focus:border-primary transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -94,6 +142,7 @@ export default function Logs() {
             <div className="relative border-l-2 border-muted ml-3 pl-8 space-y-8">
               {filteredEvents.map((ev, index) => {
                 const Icon = eventIcons[ev.type] || RefreshCw;
+                const eq = equips.find(e => e.id === ev.equipId);
                 return (
                   <div key={ev.id} className="relative group transition-all">
                     {/* Dot on timeline */}
@@ -106,12 +155,19 @@ export default function Logs() {
 
                     <div className="bg-background border border-border p-4 rounded-xl group-hover:shadow-card-hover transition-all">
                       <div className="flex justify-between items-start mb-2">
-                        <span className={cn(
-                          "text-[0.65rem] font-black uppercase px-2 py-0.5 rounded border tracking-wider",
-                          eventColors[ev.type]
-                        )}>
-                          {ev.type}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className={cn(
+                            "text-[0.65rem] font-black uppercase px-2 py-0.5 rounded border tracking-wider",
+                            eventColors[ev.type]
+                          )}>
+                            {ev.type}
+                          </span>
+                          {eq && (
+                            <span className="text-[0.65rem] font-bold text-foreground font-mono bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                              {eq.nome} ({eq.patrimonio})
+                            </span>
+                          )}
+                        </div>
                         <time className="text-[0.65rem] font-bold text-muted-foreground font-mono bg-muted/20 px-2 py-0.5 rounded">
                           {new Date(ev.date).toLocaleString('pt-BR')}
                         </time>

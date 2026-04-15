@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { cn } from '@/lib/utils';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 interface SidebarContextType {
   isCollapsed: boolean;
@@ -32,6 +33,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <SidebarContext.Provider value={{ isCollapsed, toggleSidebar }}>
       <div className="min-h-screen bg-background">
+        {!isSupabaseConfigured && (
+          <div className="fixed top-0 left-0 right-0 z-[100] bg-status-danger text-white text-[0.65rem] font-bold py-1 text-center uppercase tracking-widest animate-pulse">
+            ⚠️ MODO OFFLINE ATIVO - USANDO DADOS MOCKADOS
+          </div>
+        )}
         <Sidebar />
         <Header />
         <main

@@ -11,8 +11,11 @@ import MaintenanceForm from "./pages/MaintenanceForm";
 import TransferForm from "./pages/TransferForm";
 import Reports from "./pages/Reports";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Logs from "./pages/Logs";
+import NotificationsManager from "./pages/NotificationsManager";
 import TermoResponsabilidade from "./pages/TermoResponsabilidade";
+import ScanResult from "./pages/ScanResult";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route
             path="/*"
             element={
@@ -44,7 +48,9 @@ const App = () => (
                     <Route path="/transferencia/:id" element={<TransferForm />} />
                     <Route path="/relatorios" element={<Reports />} />
                     <Route path="/logs" element={<Logs />} />
+                    <Route path="/notificacoes" element={<NotificationsManager />} />
                     <Route path="/termo/:id" element={<TermoResponsabilidade />} />
+                    <Route path="/rastreio/:id" element={<ScanResult />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </MainLayout>

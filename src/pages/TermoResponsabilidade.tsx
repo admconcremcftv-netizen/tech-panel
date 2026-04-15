@@ -1,22 +1,32 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { Storage } from '@/lib/storage';
+import { useEffect, useState } from 'react';
+import { SupabaseService } from '@/lib/supabaseService';
 import { Button } from '@/components/ui/button';
 import { Printer, ArrowLeft } from 'lucide-react';
 import logoCompleto from '@/assets/logo-tagline.png';
+import { Equipment } from '@/lib/types';
 
 export default function TermoResponsabilidade() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const eq = Storage.getEquipment(id!);
+  const [eq, setEq] = useState<Equipment | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Título da página para o PDF/Impressão
-    if (eq) {
-      document.title = `Termo_Responsabilidade_${eq.patrimonio}_${eq.responsavel}`;
+    async function loadData() {
+      if (id) {
+        const data = await SupabaseService.getEquipment(id);
+        setEq(data);
+        if (data) {
+          document.title = `Termo_Responsabilidade_${data.patrimonio}_${data.responsavel}`;
+        }
+      }
+      setLoading(false);
     }
-  }, [eq]);
+    loadData();
+  }, [id]);
 
+  if (loading) return <div className="p-8 text-center"><h1>Carregando termo...</h1></div>;
   if (!eq) return <div className="p-8 text-center"><h1>Equipamento não encontrado</h1></div>;
 
   const handlePrint = () => {
@@ -47,7 +57,7 @@ export default function TermoResponsabilidade() {
         {/* Cabeçalho */}
         <div className="flex flex-col items-center mb-10 border-b-2 border-primary pb-6 text-center">
           <img src={logoCompleto} alt="Logo Concrem" className="h-16 object-contain mb-4" />
-          <h1 className="text-2xl font-bold uppercase tracking-tight text-secondary">Termo de Responsabilidade e Comodato</h1>
+          <h1 className="text-2xl font-bold uppercase tracking-tight text-black">Termo de Responsabilidade e Comodato</h1>
           <p className="text-sm text-muted-foreground mt-1">Gestão de Ativos de TI - Departamento de Tecnologia</p>
         </div>
 
