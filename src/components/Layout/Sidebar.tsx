@@ -91,7 +91,10 @@ export const Sidebar = () => {
             <img 
               src={isCollapsed ? logoColapsado : logoCompleto} 
               alt="Logo" 
-              className={cn("transition-all duration-300 object-contain", isCollapsed ? "md:h-7 md:w-7" : "h-9 w-[80%]")}
+              className={cn(
+                "transition-all duration-300 object-contain", 
+                isCollapsed ? "h-8 w-8" : "h-10 w-auto max-w-[180px]"
+              )}
             />
           </div>
           <Button

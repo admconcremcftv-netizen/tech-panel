@@ -22,6 +22,8 @@ export default function EquipmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isCompletingMaintenance, setIsCompletingMaintenance] = useState(false);
+  const [maintenanceNotes, setMaintenanceNotes] = useState('');
   const [eq, setEq] = useState<Equipment | null>(null);
   const [events, setEvents] = useState<EquipmentEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,6 +101,34 @@ export default function EquipmentDetail() {
       navigate('/equipamentos');
     } else {
       showToast('Erro ao remover equipamento');
+    }
+  };
+
+  const handleCompleteMaintenance = async () => {
+    if (!eq) return;
+    
+    const success = await SupabaseService.saveEquipment({
+      ...eq,
+      status: 'Disponível' // Volta para disponível ao concluir
+    }, eq.id);
+
+    if (success) {
+      await SupabaseService.addEvent(
+        eq.id, 
+        'Manutenção', 
+        `Manutenção concluída: ${maintenanceNotes || 'Sem observações adicionais'}`
+      );
+      showToast('Manutenção concluída com sucesso');
+      setIsCompletingMaintenance(false);
+      setMaintenanceNotes('');
+      
+      // Recarregar dados
+      const updatedEq = await SupabaseService.getEquipment(eq.id);
+      if (updatedEq) setEq(updatedEq);
+      const evs = await SupabaseService.getEquipmentEvents(eq.id);
+      setEvents(evs);
+    } else {
+      showToast('Erro ao concluir manutenção');
     }
   };
 
@@ -249,9 +279,18 @@ export default function EquipmentDetail() {
             <Link to={`/transferencia/${eq.id}`} className="px-4 py-2 bg-primary text-primary-foreground font-display text-[0.6rem] hover:bg-primary/80 transition-colors">
               TRANSFERIR
             </Link>
-            <Link to={`/manutencao/${eq.id}`} className="px-3 py-2 bg-surface-raised border border-border-bright text-foreground font-display text-[0.6rem] hover:border-primary hover:text-primary transition-colors">
-              REGISTRAR MANUTENÇÃO
-            </Link>
+            {eq.status === 'Em Manutenção' ? (
+              <button 
+                onClick={() => setIsCompletingMaintenance(true)}
+                className="px-4 py-2 bg-status-success text-white font-display text-[0.6rem] hover:bg-status-success/80 transition-colors"
+              >
+                ✅ CONCLUIR MANUTENÇÃO
+              </button>
+            ) : (
+              <Link to={`/manutencao/${eq.id}`} className="px-3 py-2 bg-surface-raised border border-border-bright text-foreground font-display text-[0.6rem] hover:border-primary hover:text-primary transition-colors">
+                REGISTRAR MANUTENÇÃO
+              </Link>
+            )}
           </div>
         </div>
 
@@ -326,6 +365,40 @@ export default function EquipmentDetail() {
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete(false)}
       />
+
+      {isCompletingMaintenance && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-surface border border-border p-6 rounded-lg w-full max-w-md shadow-xl animate-in fade-in zoom-in duration-200">
+            <h3 className="font-display text-lg mb-4 text-[#01270f] dark:text-white uppercase tracking-wider">Concluir Manutenção</h3>
+            <p className="text-sm text-muted-foreground mb-4 font-mono">
+              Registre o que foi feito no equipamento para finalizar este processo.
+            </p>
+            <textarea
+              className="w-full h-32 bg-background border border-border p-3 font-mono text-sm mb-6 outline-none focus:border-primary resize-none"
+              placeholder="Ex: Troca de SSD concluída, sistema reinstalado..."
+              value={maintenanceNotes}
+              onChange={(e) => setMaintenanceNotes(e.target.value)}
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setIsCompletingMaintenance(false);
+                  setMaintenanceNotes('');
+                }}
+                className="px-4 py-2 bg-surface-raised border border-border text-foreground font-display text-[0.65rem] hover:bg-muted transition-colors"
+              >
+                CANCELAR
+              </button>
+              <button
+                onClick={handleCompleteMaintenance}
+                className="px-6 py-2 bg-status-success text-white font-display text-[0.65rem] hover:bg-status-success/80 transition-colors shadow-lg shadow-status-success/20"
+              >
+                CONCLUIR E LIBERAR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div id="print-area" style={{ display: 'none' }} />
     </>
