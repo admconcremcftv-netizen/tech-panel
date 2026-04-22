@@ -94,7 +94,7 @@ function BarChart({ data }: { data: Record<string, number> }) {
             tickLine={false} 
             interval={0}
             tickMargin={10}
-            tick={{ fontSize: 10, fill: 'var(--text-tertiary)', fontFamily: 'JetBrains Mono' }}
+            tick={{ fontSize: 10, fill: 'var(--text-tertiary)', fontFamily: 'sans-serif' }}
             tickFormatter={(value: (typeof STATUS_ORDER)[number]) => STATUS_LABELS[value] ?? value}
           />
           <ReTooltip 
@@ -183,7 +183,7 @@ export default function Dashboard() {
       <PageHeader title="Painel de Controle" breadcrumb={['Core', 'Dashboard']}>
         <div className="flex items-center gap-2">
           <span className={cn("w-2 h-2 rounded-full animate-pulse", isSupabaseConfigured ? "bg-status-success" : "bg-status-warning")}></span>
-          <span className={cn("font-mono text-[0.65rem] font-bold uppercase tracking-widest", isSupabaseConfigured ? "text-status-success" : "text-status-warning")}>
+          <span className={cn("font-sans text-[0.65rem] font-bold uppercase tracking-widest", isSupabaseConfigured ? "text-status-success" : "text-status-warning")}>
             {isSupabaseConfigured ? "SISTEMA: ONLINE" : "SISTEMA: OFFLINE"}
           </span>
         </div>
@@ -266,7 +266,7 @@ export default function Dashboard() {
                     )}>
                       {ev.type}
                     </span>
-                    <span className="text-[0.65rem] text-muted-foreground font-medium bg-muted/20 px-1.5 py-0.5 rounded">
+                    <span className="text-[0.65rem] text-muted-foreground font-sans bg-muted/20 px-1.5 py-0.5 rounded">
                       {new Date(ev.date).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>

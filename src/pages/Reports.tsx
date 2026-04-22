@@ -188,8 +188,8 @@ export default function Reports() {
             <tbody>
               {Object.entries(byResponsavel).map(([name, count]) => (
                 <tr key={name}>
-                  <td className="py-1.5 border-b border-border">{name}</td>
-                  <td className="py-1.5 border-b border-border font-mono text-primary">{count}</td>
+                  <td className="py-1.5 border-b border-border font-medium">{name}</td>
+                  <td className="py-1.5 border-b border-border font-sans font-bold text-primary">{count}</td>
                 </tr>
               ))}
             </tbody>
@@ -259,13 +259,13 @@ export default function Reports() {
                   const eq = equips.find(e => e.id === ev.equipId);
                   return (
                     <tr key={ev.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="p-3 font-mono text-[0.65rem] whitespace-nowrap text-muted-foreground">
+                      <td className="p-3 font-sans text-[0.65rem] font-bold whitespace-nowrap text-muted-foreground uppercase tracking-wider">
                         {new Date(ev.date).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="p-3">
                         <div className="flex flex-col">
                           <span className="text-xs font-bold text-foreground">{eq?.nome || 'N/A'}</span>
-                          <span className="text-[0.6rem] font-mono text-muted-foreground">{eq?.patrimonio || 'N/A'}</span>
+                          <span className="text-[0.6rem] font-sans font-bold uppercase tracking-widest text-muted-foreground opacity-60">{eq?.patrimonio || 'N/A'}</span>
                         </div>
                       </td>
                       <td className="p-3">

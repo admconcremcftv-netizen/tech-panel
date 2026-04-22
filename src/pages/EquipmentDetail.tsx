@@ -12,8 +12,8 @@ function Field({ label, value }: { label: string; value: string }) {
   if (!value) return null;
   return (
     <div>
-      <div className="font-mono text-[0.55rem] text-muted-foreground/50 uppercase">{label}</div>
-      <div className="font-mono text-sm">{value}</div>
+      <div className="font-sans text-[0.55rem] text-muted-foreground uppercase font-bold tracking-wider mb-0.5 opacity-60">{label}</div>
+      <div className="font-sans text-sm font-medium">{value}</div>
     </div>
   );
 }
@@ -92,6 +92,8 @@ export default function EquipmentDetail() {
   const photos = getPhotoList(eq.foto);
   const selectedPhotoSrc = photos[selectedPhotoIndex] || photos[0] || null;
 
+  // Corrigindo URL do QR Code para funcionar no Smartphone via navegador
+  // O formato deve incluir o caminho completo da URL
   const qrData = `${window.location.origin}/rastreio/${eq.id}`;
 
   const handleDelete = async () => {
@@ -169,10 +171,10 @@ export default function EquipmentDetail() {
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-surface border border-border p-5 rounded-sm">
           <div className="flex justify-between items-start mb-1">
-            <h2 className="font-mono text-lg text-[#01270f] dark:text-white">{eq.nome}</h2>
+            <h2 className="font-sans text-lg font-bold text-[#01270f] dark:text-white">{eq.nome}</h2>
             <StatusBadge status={eq.status} />
           </div>
-          <p className="font-mono text-muted-foreground/50 text-xs mb-5">ID: {eq.id}</p>
+          <p className="font-sans text-muted-foreground opacity-50 text-[0.65rem] mb-5 uppercase tracking-widest font-bold">ID: {eq.id}</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <Field label="Patrimônio" value={eq.patrimonio} />
@@ -214,30 +216,30 @@ export default function EquipmentDetail() {
               <div className="grid grid-cols-2 gap-y-3 gap-x-6">
                 <div>
                   <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Processador</div>
-                  <div className="text-sm font-mono">{eq.processador || 'N/A'}</div>
+                  <div className="text-sm font-sans font-medium">{eq.processador || 'N/A'}</div>
                 </div>
                 <div>
                   <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Memória RAM</div>
-                  <div className="text-sm font-mono">{eq.ram || 'N/A'}</div>
+                  <div className="text-sm font-sans font-medium">{eq.ram || 'N/A'}</div>
                 </div>
                 <div>
                   <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Armazenamento</div>
-                  <div className="text-sm font-mono">{eq.armazenamento || 'N/A'}</div>
+                  <div className="text-sm font-sans font-medium">{eq.armazenamento || 'N/A'}</div>
                 </div>
                 <div>
                   <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Sistema Operacional</div>
-                  <div className="text-sm font-mono">{eq.so || 'N/A'}</div>
+                  <div className="text-sm font-sans font-medium">{eq.so || 'N/A'}</div>
                 </div>
                 
                 {eq.tipo === 'Monitor' && (
                   <>
                     <div>
                       <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Polegadas</div>
-                      <div className="text-sm font-mono">{eq.polegadas || 'N/A'}</div>
+                      <div className="text-sm font-sans font-medium">{eq.polegadas || 'N/A'}</div>
                     </div>
                     <div>
                       <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Resolução</div>
-                      <div className="text-sm font-mono">{eq.resolucao || 'N/A'}</div>
+                      <div className="text-sm font-sans font-medium">{eq.resolucao || 'N/A'}</div>
                     </div>
                   </>
                 )}
@@ -246,11 +248,11 @@ export default function EquipmentDetail() {
                   <>
                     <div>
                       <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">IMEI</div>
-                      <div className="text-sm font-mono">{eq.imei || 'N/A'}</div>
+                      <div className="text-sm font-sans font-medium">{eq.imei || 'N/A'}</div>
                     </div>
                     <div>
                       <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Bateria</div>
-                      <div className="text-sm font-mono">{eq.capacidadeBateria || 'N/A'}</div>
+                      <div className="text-sm font-sans font-medium">{eq.capacidadeBateria || 'N/A'}</div>
                     </div>
                   </>
                 )}
@@ -258,7 +260,7 @@ export default function EquipmentDetail() {
                 {eq.tipo === 'Impressora' && (
                   <div>
                     <div className="text-[0.5rem] text-muted-foreground uppercase font-bold">Voltagem</div>
-                    <div className="text-sm font-mono">{eq.voltagem || 'N/A'}</div>
+                    <div className="text-sm font-sans font-medium">{eq.voltagem || 'N/A'}</div>
                   </div>
                 )}
               </div>
@@ -266,7 +268,7 @@ export default function EquipmentDetail() {
               {eq.specs && (
                 <div className="pt-2 border-t border-border-bright/30 mt-2">
                   <div className="text-[0.5rem] text-muted-foreground uppercase font-bold mb-1">Detalhes Adicionais</div>
-                  <div className="text-xs font-mono text-foreground/80 leading-relaxed">{eq.specs}</div>
+                  <div className="text-xs font-sans text-foreground/80 leading-relaxed font-medium">{eq.specs}</div>
                 </div>
               )}
             </div>
@@ -348,9 +350,9 @@ export default function EquipmentDetail() {
             {events.map(ev => (
               <div key={ev.id} className="relative mb-5">
                 <div className="absolute left-[-22px] top-1.5 w-2 h-2 rounded-full bg-primary" />
-                <div className="font-mono text-[0.65rem] text-muted-foreground/50">{ev.date}</div>
-                <div className="font-mono text-xs text-[#01270f] dark:text-white">{ev.type}</div>
-                <div className="text-sm">{ev.desc}</div>
+                <div className="font-sans text-[0.65rem] text-muted-foreground/50 font-bold uppercase tracking-wider">{ev.date}</div>
+                <div className="font-sans text-xs text-[#01270f] dark:text-white font-bold">{ev.type}</div>
+                <div className="text-sm font-sans">{ev.desc}</div>
               </div>
             ))}
             {events.length === 0 && <p className="text-muted-foreground text-sm font-mono">Sem eventos registrados.</p>}

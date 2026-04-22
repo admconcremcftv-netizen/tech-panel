@@ -95,23 +95,23 @@ export default function EquipmentList() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="p-8 text-center text-muted-foreground font-mono text-sm">Carregando dados do Supabase...</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-muted-foreground font-sans text-sm">Carregando dados do Supabase...</td></tr>
               ) : filteredEquips.map(eq => (
                 <tr key={eq.id} className="hover:bg-foreground/[0.02] transition-colors">
-                  <td className="p-3 border-b border-border font-mono text-sm">{eq.patrimonio}</td>
-                  <td className="p-3 border-b border-border text-sm font-semibold">{eq.nome}</td>
-                  <td className="p-3 border-b border-border font-mono text-xs">{eq.tipo}</td>
+                  <td className="p-3 border-b border-border font-sans text-[0.65rem] font-bold uppercase tracking-widest opacity-60">{eq.patrimonio}</td>
+                  <td className="p-3 border-b border-border text-sm font-bold">{eq.nome}</td>
+                  <td className="p-3 border-b border-border font-sans text-[0.65rem] font-bold uppercase tracking-widest opacity-60">{eq.tipo}</td>
                   <td className="p-3 border-b border-border"><StatusBadge status={eq.status} /></td>
-                  <td className="p-3 border-b border-border text-sm">{eq.responsavel}</td>
+                  <td className="p-3 border-b border-border text-sm font-medium">{eq.responsavel}</td>
                   <td className="p-3 border-b border-border">
-                    <Link to={`/equipamento/${eq.id}`} className="px-2 py-1 bg-surface-raised border border-border-bright text-foreground font-display text-[0.55rem] hover:border-primary hover:text-primary transition-colors">
+                    <Link to={`/equipamento/${eq.id}`} className="px-2 py-1 bg-surface-raised border border-border-bright text-foreground font-sans text-[0.55rem] font-bold uppercase tracking-wider hover:border-primary hover:text-primary transition-colors rounded">
                       DETALHES
                     </Link>
                   </td>
                 </tr>
               ))}
               {!loading && filteredEquips.length === 0 && (
-                <tr><td colSpan={6} className="p-8 text-center text-muted-foreground font-mono text-sm">Nenhum equipamento encontrado.</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-muted-foreground font-sans text-sm">Nenhum equipamento encontrado.</td></tr>
               )}
             </tbody>
           </table>
@@ -120,32 +120,32 @@ export default function EquipmentList() {
         {/* Mobile Card View */}
         <div className="md:hidden space-y-4">
           {loading ? (
-            <div className="p-8 text-center text-muted-foreground font-mono text-sm">Carregando dados do Supabase...</div>
+            <div className="p-8 text-center text-muted-foreground font-sans text-sm">Carregando dados do Supabase...</div>
           ) : filteredEquips.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground font-mono text-sm">Nenhum equipamento encontrado.</div>
+            <div className="p-8 text-center text-muted-foreground font-sans text-sm">Nenhum equipamento encontrado.</div>
           ) : (
             filteredEquips.map(eq => (
-              <div key={eq.id} className="bg-background border border-border p-4 rounded-sm space-y-3">
+              <div key={eq.id} className="bg-background border border-border p-4 rounded-sm space-y-3 shadow-sm">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-[0.65rem] text-muted-foreground uppercase font-mono">{eq.patrimonio}</p>
+                    <p className="text-[0.65rem] text-muted-foreground uppercase font-sans font-bold tracking-widest opacity-60">{eq.patrimonio}</p>
                     <h3 className="text-sm font-bold text-foreground">{eq.nome}</h3>
                   </div>
                   <StatusBadge status={eq.status} />
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-[0.6rem] text-muted-foreground uppercase">Tipo</p>
-                    <p className="font-mono">{eq.tipo}</p>
+                    <p className="text-[0.6rem] text-muted-foreground uppercase font-bold tracking-tighter opacity-50">Tipo</p>
+                    <p className="font-sans font-medium">{eq.tipo}</p>
                   </div>
                   <div>
-                    <p className="text-[0.6rem] text-muted-foreground uppercase">Responsável</p>
-                    <p>{eq.responsavel || '-'}</p>
+                    <p className="text-[0.6rem] text-muted-foreground uppercase font-bold tracking-tighter opacity-50">Responsável</p>
+                    <p className="font-medium">{eq.responsavel || '-'}</p>
                   </div>
                 </div>
                 <Link 
                   to={`/equipamento/${eq.id}`} 
-                  className="block w-full text-center py-2 bg-surface-raised border border-border-bright text-foreground font-display text-[0.65rem] hover:border-primary hover:text-primary transition-colors"
+                  className="block w-full text-center py-2.5 bg-surface-raised border border-border-bright text-foreground font-sans font-bold text-[0.65rem] uppercase tracking-wider hover:border-primary hover:text-primary transition-colors rounded-md shadow-sm"
                 >
                   VER DETALHES COMPLETOS
                 </Link>

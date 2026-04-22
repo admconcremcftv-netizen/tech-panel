@@ -236,10 +236,10 @@ export default function ScanResult() {
 
         <div className="mt-8 pt-6 border-t border-border/50 text-center">
           <button 
-            onClick={() => navigate('/equipamentos')}
+            onClick={() => navigate(`/equipamento/${eq.id}`)}
             className="text-[0.6rem] font-mono uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
           >
-            ← VOLTAR PARA O INVENTÁRIO DE ATIVOS
+            ← VOLTAR PARA A FICHA TÉCNICA
           </button>
         </div>
       </div>

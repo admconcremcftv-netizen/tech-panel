@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 
 export function Breadcrumb({ items }: { items: string[] }) {
   return (
-    <div className="text-[0.7rem] text-muted-foreground/50 uppercase mb-1 font-mono">
+    <div className="text-[0.65rem] text-muted-foreground uppercase mb-1 font-bold tracking-widest font-sans opacity-70">
       {items.join(' / ')}
     </div>
   );
@@ -42,7 +42,7 @@ export function PageHeader({
             <button
               type="button"
               onClick={handleBack}
-              className="shrink-0 px-3 py-2 bg-surface-raised border border-border-bright text-foreground font-display text-[0.6rem] uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
+              className="shrink-0 px-3 py-2 bg-surface-raised border border-border-bright text-foreground font-sans text-[0.65rem] font-bold uppercase tracking-wider hover:border-primary hover:text-primary transition-colors rounded-md"
             >
               ← Voltar
             </button>
