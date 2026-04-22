@@ -189,7 +189,7 @@ export default function Dashboard() {
         </div>
       </PageHeader>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
         <StatCard label="Total Ativos" value={equips.length} />
         <StatCard label="Em Uso" value={equips.filter(e => e.status === 'Em Uso').length} />
         <StatCard label="Disponíveis" value={equips.filter(e => e.status === 'Disponível').length} accent />

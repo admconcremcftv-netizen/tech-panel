@@ -7,6 +7,10 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 interface SidebarContextType {
   isCollapsed: boolean;
   toggleSidebar: () => void;
+  isMobileOpen: boolean;
+  openMobile: () => void;
+  closeMobile: () => void;
+  toggleMobile: () => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -25,13 +29,18 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const openMobile = () => setIsMobileOpen(true);
+  const closeMobile = () => setIsMobileOpen(false);
+  const toggleMobile = () => setIsMobileOpen(v => !v);
+
   return (
-    <SidebarContext.Provider value={{ isCollapsed, toggleSidebar }}>
+    <SidebarContext.Provider value={{ isCollapsed, toggleSidebar, isMobileOpen, openMobile, closeMobile, toggleMobile }}>
       <div className="min-h-screen bg-background">
         {!isSupabaseConfigured && (
           <div className="fixed top-0 left-0 right-0 z-[100] bg-status-danger text-white text-[0.65rem] font-bold py-1 text-center uppercase tracking-widest animate-pulse">
@@ -43,10 +52,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <main
           className={cn(
             "pt-16 min-h-screen transition-all duration-300 ease-in-out",
-            isCollapsed ? "ml-16" : "ml-64"
+            isCollapsed ? "md:ml-16" : "md:ml-64",
+            "ml-0"
           )}
         >
-          <div className="p-8">
+          <div className="p-4 md:p-8">
             {children}
           </div>
         </main>

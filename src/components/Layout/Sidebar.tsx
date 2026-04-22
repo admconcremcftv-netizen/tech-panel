@@ -19,6 +19,7 @@ import {
   ChevronRight,
   User,
   LogOut,
+  X,
 } from 'lucide-react';
 
 import logoCompleto from '@/assets/concrem-logo.png';
@@ -34,7 +35,7 @@ const menuItems = [
 ];
 
 export const Sidebar = () => {
-  const { isCollapsed, toggleSidebar } = useSidebar();
+  const { isCollapsed, toggleSidebar, isMobileOpen, closeMobile } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -63,65 +64,91 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-sidebar-background text-sidebar-foreground transition-all duration-300 ease-in-out border-r border-sidebar-border flex flex-col",
-        isCollapsed ? "w-16" : "w-64"
-      )}
-    >
-      {/* Logo Area */}
-      <div 
-        className="flex h-16 items-center justify-center border-b border-sidebar-border p-4 cursor-pointer hover:bg-sidebar-accent transition-colors shrink-0"
-        onClick={toggleSidebar}
-      >
-        <img 
-          src={isCollapsed ? logoColapsado : logoCompleto} 
-          alt="Logo" 
-          className={cn("transition-all duration-300 object-contain", isCollapsed ? "h-7 w-7" : "h-9 w-[80%]")}
+    <>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 md:hidden backdrop-blur-sm transition-opacity duration-300"
+          onClick={closeMobile}
         />
-      </div>
+      )}
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-sidebar-accent scrollbar-track-transparent">
-        <TooltipProvider delayDuration={0}>
-          {menuItems.map((item) => (
-            <div key={item.href}>
-              {isCollapsed ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Link to={item.href}>
-                      <Button
-                        variant="sidebar"
-                        className={cn(
-                          "justify-center px-2",
-                          isActive(item.href) && "bg-sidebar-accent"
-                        )}
-                      >
-                        <item.icon className="h-5 w-5" />
-                      </Button>
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-sidebar-background text-sidebar-foreground border-sidebar-border">
-                    {item.title}
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <Link to={item.href}>
-                  <Button
-                    variant="sidebar"
-                    className={cn(
-                      isActive(item.href) && "bg-sidebar-accent"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5 mr-3" />
-                    <span>{item.title}</span>
-                  </Button>
-                </Link>
-              )}
-            </div>
-          ))}
-        </TooltipProvider>
-      </nav>
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 h-screen bg-sidebar-background text-sidebar-foreground transition-all duration-300 ease-in-out border-r border-sidebar-border flex flex-col",
+          isCollapsed ? "md:w-16" : "md:w-64",
+          isMobileOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full md:translate-x-0"
+        )}
+      >
+        {/* Logo Area */}
+        <div className="flex h-16 items-center justify-between border-b border-sidebar-border p-4 shrink-0">
+          <div 
+            className="flex items-center justify-center flex-1 cursor-pointer hover:bg-sidebar-accent transition-colors py-2 rounded-md"
+            onClick={() => {
+              if (window.innerWidth >= 768) toggleSidebar();
+            }}
+          >
+            <img 
+              src={isCollapsed ? logoColapsado : logoCompleto} 
+              alt="Logo" 
+              className={cn("transition-all duration-300 object-contain", isCollapsed ? "md:h-7 md:w-7" : "h-9 w-[80%]")}
+            />
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden text-sidebar-foreground hover:bg-sidebar-accent"
+            onClick={closeMobile}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-sidebar-accent scrollbar-track-transparent">
+          <TooltipProvider delayDuration={0}>
+            {menuItems.map((item) => (
+              <div key={item.href}>
+                {isCollapsed ? (
+                  <div className="hidden md:block">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link to={item.href}>
+                          <Button
+                            variant="sidebar"
+                            className={cn(
+                              "justify-center px-2",
+                              isActive(item.href) && "bg-sidebar-accent"
+                            )}
+                          >
+                            <item.icon className="h-5 w-5" />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="bg-sidebar-background text-sidebar-foreground border-sidebar-border">
+                        {item.title}
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                ) : null}
+                
+                <div className={cn(isCollapsed ? "md:hidden" : "block")}>
+                  <Link to={item.href} onClick={closeMobile}>
+                    <Button
+                      variant="sidebar"
+                      className={cn(
+                        isActive(item.href) && "bg-sidebar-accent"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5 mr-3" />
+                      <span>{item.title}</span>
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </TooltipProvider>
+        </nav>
 
       {/* User Section */}
       <div className="mt-auto border-t border-sidebar-border p-4">
@@ -170,5 +197,6 @@ export const Sidebar = () => {
         )}
       </div>
     </aside>
-  );
+  </>
+);
 };

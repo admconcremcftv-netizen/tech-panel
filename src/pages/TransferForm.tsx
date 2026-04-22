@@ -56,7 +56,7 @@ export default function TransferForm() {
           <label className="block text-[0.7rem] text-muted-foreground uppercase mb-1">Motivo</label>
           <input className={inputClass} value={form.motivo} onChange={e => setForm(f => ({ ...f, motivo: e.target.value }))} />
         </div>
-        <button type="submit" className="px-6 py-2.5 bg-primary text-primary-foreground font-display text-[0.65rem] hover:bg-primary/80 transition-colors">
+        <button type="submit" className="w-full sm:w-auto px-6 py-2.5 bg-primary text-primary-foreground font-display text-[0.65rem] hover:bg-primary/80 transition-colors">
           EFETIVAR TRANSFERÊNCIA
         </button>
       </form>

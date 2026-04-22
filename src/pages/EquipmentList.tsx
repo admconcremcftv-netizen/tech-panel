@@ -84,7 +84,7 @@ export default function EquipmentList() {
           </select>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr>
@@ -115,6 +115,43 @@ export default function EquipmentList() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4">
+          {loading ? (
+            <div className="p-8 text-center text-muted-foreground font-mono text-sm">Carregando dados do Supabase...</div>
+          ) : filteredEquips.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground font-mono text-sm">Nenhum equipamento encontrado.</div>
+          ) : (
+            filteredEquips.map(eq => (
+              <div key={eq.id} className="bg-background border border-border p-4 rounded-sm space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-[0.65rem] text-muted-foreground uppercase font-mono">{eq.patrimonio}</p>
+                    <h3 className="text-sm font-bold text-foreground">{eq.nome}</h3>
+                  </div>
+                  <StatusBadge status={eq.status} />
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <p className="text-[0.6rem] text-muted-foreground uppercase">Tipo</p>
+                    <p className="font-mono">{eq.tipo}</p>
+                  </div>
+                  <div>
+                    <p className="text-[0.6rem] text-muted-foreground uppercase">Responsável</p>
+                    <p>{eq.responsavel || '-'}</p>
+                  </div>
+                </div>
+                <Link 
+                  to={`/equipamento/${eq.id}`} 
+                  className="block w-full text-center py-2 bg-surface-raised border border-border-bright text-foreground font-display text-[0.65rem] hover:border-primary hover:text-primary transition-colors"
+                >
+                  VER DETALHES COMPLETOS
+                </Link>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </>

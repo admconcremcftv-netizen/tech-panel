@@ -197,38 +197,30 @@ export default function Reports() {
         </div>
 
         <div className="bg-surface border border-border p-5 rounded-sm md:col-span-2">
-          <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-            <h3 className="font-display text-xs">Histórico de Logs ({filteredEvents.length})</h3>
-            <button
-              onClick={exportLogsCSV}
-              className="px-4 py-2 bg-primary text-primary-foreground font-display text-[0.65rem] hover:bg-primary/80 transition-colors flex items-center gap-2"
-            >
-              <FileDown className="h-4 w-4" />
-              Exportar Logs
-            </button>
-          </div>
-
-          <div className="bg-card border border-border p-6 rounded-xl shadow-card">
-            <div className="flex flex-col md:flex-row gap-4 mb-8">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h3 className="font-display text-xs uppercase tracking-widest text-[#01270f] dark:text-white">Relatório de Eventos</h3>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Buscar por equipamento, patrimônio ou descrição..."
-                  className="w-full bg-background border border-border pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none focus:border-primary transition-all"
+                  placeholder="Buscar..."
+                  className="w-full bg-background border border-border pl-9 pr-3 py-1.5 rounded text-xs outline-none focus:border-primary transition-all"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <div className="flex items-center gap-3">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <div className="flex gap-2 flex-wrap">
+
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                <Filter className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="flex gap-1.5 flex-nowrap">
                   {eventTypes.map(type => (
                     <button
                       key={type}
                       onClick={() => setFilterType(type)}
                       className={cn(
-                        "px-3 py-1.5 text-xs font-bold rounded-full transition-all border",
+                        "px-2.5 py-1 text-[0.6rem] font-bold rounded transition-all border whitespace-nowrap",
                         filterType === type 
                           ? "bg-primary text-primary-foreground border-primary" 
                           : "bg-muted/20 text-muted-foreground border-transparent hover:border-muted"
@@ -239,57 +231,59 @@ export default function Reports() {
                   ))}
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-6">
-              {filteredEvents.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-muted rounded-xl">
-                  <History className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                  <p className="text-muted-foreground font-medium">Nenhum registro encontrado para sua busca.</p>
-                </div>
-              ) : (
-                <div className="relative border-l-2 border-muted ml-3 pl-8 space-y-8">
-                  {filteredEvents.map(ev => {
-                    const Icon = eventIcons[ev.type] || RefreshCw;
-                    const eq = equips.find(e => e.id === ev.equipId);
-                    return (
-                      <div key={ev.id} className="relative group transition-all">
-                        <div className={cn(
-                          "absolute -left-[41px] top-0 w-6 h-6 rounded-full flex items-center justify-center border-2 border-background shadow-sm transition-transform group-hover:scale-110",
-                          eventColors[ev.type]?.split(' ')[1] || 'bg-muted text-muted-foreground'
+              <button 
+                onClick={exportLogsCSV}
+                className="h-8 px-3 text-[0.6rem] gap-2 border border-primary/20 hover:bg-primary/5 text-primary rounded flex items-center justify-center transition-colors"
+              >
+                <FileDown className="h-3.5 w-3.5" />
+                CSV
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left text-[0.6rem] text-muted-foreground/50 uppercase p-3 border-b border-border">Data</th>
+                  <th className="text-left text-[0.6rem] text-muted-foreground/50 uppercase p-3 border-b border-border">Equipamento</th>
+                  <th className="text-left text-[0.6rem] text-muted-foreground/50 uppercase p-3 border-b border-border whitespace-nowrap">Tipo</th>
+                  <th className="text-left text-[0.6rem] text-muted-foreground/50 uppercase p-3 border-b border-border">Descrição</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                {filteredEvents.length === 0 ? (
+                  <tr><td colSpan={4} className="p-8 text-center text-muted-foreground font-mono text-xs">Nenhum evento encontrado no período.</td></tr>
+                ) : filteredEvents.map(ev => {
+                  const eq = equips.find(e => e.id === ev.equipId);
+                  return (
+                    <tr key={ev.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="p-3 font-mono text-[0.65rem] whitespace-nowrap text-muted-foreground">
+                        {new Date(ev.date).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="p-3">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-foreground">{eq?.nome || 'N/A'}</span>
+                          <span className="text-[0.6rem] font-mono text-muted-foreground">{eq?.patrimonio || 'N/A'}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <span className={cn(
+                          "text-[0.55rem] font-black uppercase px-1.5 py-0.5 rounded border tracking-tighter",
+                          eventColors[ev.type] || 'bg-muted text-muted-foreground'
                         )}>
-                          <Icon className="h-3 w-3" />
-                        </div>
-
-                        <div className="bg-background border border-border p-4 rounded-xl group-hover:shadow-card-hover transition-all">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-center gap-3 flex-wrap">
-                              <span className={cn(
-                                "text-[0.65rem] font-black uppercase px-2 py-0.5 rounded border tracking-wider",
-                                eventColors[ev.type]
-                              )}>
-                                {ev.type}
-                              </span>
-                              {eq && (
-                                <span className="text-[0.65rem] font-bold text-foreground font-mono bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
-                                  {eq.nome} ({eq.patrimonio})
-                                </span>
-                              )}
-                            </div>
-                            <time className="text-[0.65rem] font-bold text-muted-foreground font-mono bg-muted/20 px-2 py-0.5 rounded">
-                              {new Date(ev.date).toLocaleString('pt-BR')}
-                            </time>
-                          </div>
-                          <p className="text-sm text-foreground/90 leading-relaxed font-sans">
-                            {ev.desc}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                          {ev.type}
+                        </span>
+                      </td>
+                      <td className="p-3 text-xs text-foreground/80 leading-relaxed min-w-[200px]">
+                        {ev.desc}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
 

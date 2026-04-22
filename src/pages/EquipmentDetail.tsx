@@ -144,7 +144,7 @@ export default function EquipmentDetail() {
           </div>
           <p className="font-mono text-muted-foreground/50 text-xs mb-5">ID: {eq.id}</p>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <Field label="Patrimônio" value={eq.patrimonio} />
             <Field label="Série" value={eq.serie} />
             <Field label="Marca" value={eq.marca} />
@@ -158,7 +158,7 @@ export default function EquipmentDetail() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <Field label="Processador" value={eq.processador} />
             <Field label="RAM" value={eq.ram} />
             <Field label="Armazenamento" value={eq.armazenamento} />

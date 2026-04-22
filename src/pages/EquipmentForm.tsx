@@ -323,11 +323,11 @@ export default function EquipmentForm({ onSuccess, isModal }: { onSuccess?: () =
           )}
         </FormField>
 
-        <div className="flex gap-3 mt-4">
-          <button type="submit" className="px-6 py-2.5 bg-primary text-primary-foreground font-display text-[0.65rem] hover:bg-primary/80 transition-colors">
+        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+          <button type="submit" className="w-full sm:w-auto px-6 py-2.5 bg-primary text-primary-foreground font-display text-[0.65rem] hover:bg-primary/80 transition-colors">
             SALVAR REGISTRO
           </button>
-          <button type="button" onClick={() => navigate(-1)} className="px-4 py-2.5 bg-surface-raised border border-border-bright text-foreground font-display text-[0.65rem] hover:border-primary hover:text-primary transition-colors">
+          <button type="button" onClick={() => navigate(-1)} className="w-full sm:w-auto px-4 py-2.5 bg-surface-raised border border-border-bright text-foreground font-display text-[0.65rem] hover:border-primary hover:text-primary transition-colors">
             CANCELAR
           </button>
         </div>

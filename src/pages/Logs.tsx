@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { SupabaseService } from '@/lib/supabaseService';
-import { isSupabaseConfigured } from '@/lib/supabase';
 import { PageHeader } from '@/components/PageHeader';
 import { cn } from '@/lib/utils';
-import { EquipmentEvent } from '@/lib/types';
+import { EquipmentEvent, Equipment } from '@/lib/types';
 import { 
   History, 
   Search, 
@@ -111,9 +110,9 @@ export default function Logs() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-3">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <div className="flex gap-2">
+          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+            <div className="flex gap-2 flex-nowrap">
               {eventTypes.map(type => (
                 <button
                   key={type}
@@ -140,7 +139,7 @@ export default function Logs() {
             </div>
           ) : (
             <div className="relative border-l-2 border-muted ml-3 pl-8 space-y-8">
-              {filteredEvents.map((ev, index) => {
+              {filteredEvents.map((ev) => {
                 const Icon = eventIcons[ev.type] || RefreshCw;
                 const eq = equips.find(e => e.id === ev.equipId);
                 return (
